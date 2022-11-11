@@ -9,7 +9,7 @@
     const message = text.trim();
     if (!message) return;
     text = '';
-    socket.emit('message', { message, userId: 2 });
+    socket.emit('message', { message, userId: "2" });
   }
 
   socket.on("newChat", (chat: Message) => {
