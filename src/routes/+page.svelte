@@ -1,5 +1,5 @@
 <script lang="ts">
-  import socket from '../lib/socket/webSocketClient';
+  import socket from '$lib/socket/webSocketClient';
   import type { Message } from "@types/Message";
 
   let text = '';
