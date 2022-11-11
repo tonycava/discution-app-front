@@ -3,13 +3,14 @@
   import type { Message } from "@types/Message";
 
   let text = '';
+  let uuid = '';
   let messages: Message[] = [];
 
   function sendMessage(){
     const message = text.trim();
     if (!message) return;
     text = '';
-    socket.emit('message', { message, userId: "2" });
+    socket.emit('message', { message, userId: uuid });
   }
 
   socket.on("newChat", (chat: Message) => {
@@ -21,6 +22,8 @@
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
 
 <input bind:value={text}>
+<input bind:value={uuid}>
+
 <button on:click={sendMessage}>Send</button>
 
 {#each messages as message}
