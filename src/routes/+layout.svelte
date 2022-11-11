@@ -1,5 +1,5 @@
 <script>
-  import '../../static/app.css';
+  import '../styles/app.css';
 </script>
 
 <div class="relative overflow-hidden min-h-screen">
