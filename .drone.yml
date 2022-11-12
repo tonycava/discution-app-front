@@ -7,6 +7,18 @@ platform:
   arch: amd64
 
 steps:
-  - name: hello-world
+  - name: environnement
     commands:
-      - echo "Hello World"
+      - cp /root/cloned_repo/discution-app-front/.env .
+
+  - name: build
+    commands:
+      - docker build -t discutoi:front .
+
+  - name: stop-previous-version
+    commands:
+      - docker rm -f discutoi-front || true
+
+  - name: deploy
+    commands:
+      - docker run -d -p 8052:3000 --name discutoi-front discutoi:front
