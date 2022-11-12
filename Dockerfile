@@ -1,20 +1,22 @@
-FROM node:16.18-alpine3.16 as builder
+FROM alpine as builder
+
+RUN apk add --update nodejs npm
 
 WORKDIR /app
 
 COPY package.json .
 
-RUN yarn install --frozen-lockfile
+RUN npm i
 
 COPY . .
 
-RUN yarn build
+RUN npm run build
 
-FROM alpine:3.16
-
-WORKDIR /app
+FROM alpine
 
 RUN apk add --update nodejs
+
+WORKDIR /app
 
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/build .
