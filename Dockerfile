@@ -10,7 +10,7 @@ COPY . .
 
 RUN yarn build
 
-FROM alpine
+FROM alpine:3.16
 
 WORKDIR /app
 
