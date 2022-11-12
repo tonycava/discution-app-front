@@ -9,7 +9,7 @@ COPY . .
 
 RUN yarn build
 
-FROM node:16.18-alpine3.16
+FROM node:alpine
 
 WORKDIR /app
 
