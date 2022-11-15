@@ -73,7 +73,7 @@
 <div class="absolute mb-32 isolate justify-center items-center flex flex-col w-screen h-screen">
   <header class="flex flex-col justify-center mx-auto [&>input]:w-full">
     <img alt="Koomei logo" class="flex justify-center w-24 mx-auto aspect-square"
-         src="/app.png">
+         src="/logo.png">
 
     <span class="h-8 text-white leading-9 text-5xl my-4 text-center w-full"
           style="font-family: Calibre, Helvetica Neue, Segoe UI, Helvetica, Arial, Lucida Grande, sans-serif">To cat from chat</span>
