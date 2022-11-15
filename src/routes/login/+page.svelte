@@ -73,13 +73,13 @@
 <div class="absolute mb-32 isolate justify-center items-center flex flex-col w-screen h-screen">
   <header class="flex flex-col justify-center mx-auto [&>input]:w-full">
     <img alt="Koomei logo" class="flex justify-center w-24 mx-auto aspect-square"
-         src="https://static.xx.fbcdn.net/rsrc.php/yd/r/hlvibnBVrEb.svg">
+         src="/app.png">
 
     <span class="h-8 text-white leading-9 text-5xl my-4 text-center w-full"
           style="font-family: Calibre, Helvetica Neue, Segoe UI, Helvetica, Arial, Lucida Grande, sans-serif">To cat from chat</span>
   </header>
 
-  <form class="mt-12 flex flex-col justify-center w-[25%] mx-auto [&>input]:w-full"
+  <form class="mt-12 flex flex-col justify-center lg:w-1/4 w-3/4 mx-auto [&>input]:w-full"
         on:submit={handleSubmitForNewProject}>
 
     <TextInput
@@ -96,7 +96,8 @@
     />
     <span class="font-bold text-red-600">{usernameError}</span>
 
-    <button class="isolate bg-gray-800 py-3 px-8 rounded-3xl w-fit mx-auto text-white mt-6" type="submit">Let's Chat</button>
+    <button class="isolate bg-gray-800 py-3 px-8 rounded-3xl w-fit mx-auto text-white mt-6" type="submit">Let's Chat
+    </button>
   </form>
 </div>
 
