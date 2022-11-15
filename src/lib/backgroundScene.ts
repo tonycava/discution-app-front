@@ -16,25 +16,25 @@ export const createScene = (window: Window, canvas: HTMLCanvasElement) => {
   const cubes: Mesh<TetrahedronGeometry, MeshBasicMaterial>[] = [];
   
   const [r, g, b] = Color.rgb(Math.random() * 255, Math.random() * 255, Math.random() * 255).array().map(Math.floor);
-  const color = `rgb(${r}, ${g}, ${b})`;
+  const color = `${r},${g},${b}`;
   
-  for (let i = 0; i < 3000; i ++) {
-    const [rr, gg, bb] = shadeRGBColor(color, + Math.random()).split(",");
+  for (let i = 0; i < 3000; i++) {
+    const [rr, gg, bb] = shadeRGBColor(color, +Math.random()).split(",");
     
     const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(+ rr, + gg, + bb),
+      color: new THREE.Color(+rr, +gg, +bb),
     });
     
     const cube = new THREE.Mesh(geometry, material);
     const pos = new THREE.Vector3(
       Math.random() * 600 - 300,
       Math.random() * 600 - 300,
-      Math.random() * 600 - 400
+      Math.random() * 600 - 450
     );
     cube.position.add(pos);
     cubes.push(cube);
-    scene.add(cube);
   }
+  scene.add(...cubes);
   resize()
   animate(cubes)
 }
