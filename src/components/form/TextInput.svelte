@@ -1,6 +1,7 @@
 <script lang="ts">
   export let value = "";
   export let placeholder = "";
+  export let error = "";
   let timer: any;
 
   const debounce = (evt: KeyboardEvent) => {
@@ -18,3 +19,4 @@
   placeholder={placeholder}
   type="text"
 />
+<span class="font-bold text-red-600">{error}</span>
