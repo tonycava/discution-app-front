@@ -13,6 +13,7 @@ const config: UserConfig = {
       '@components': path.resolve('./src/components'),
       '@types': path.resolve('./src/types'),
       '@services': path.resolve('./src/services'),
+      '@stores': path.resolve('./src/stores'),
     }
   }
 };

@@ -1,7 +1,5 @@
 <script lang="ts">
   import TextInput from '@components/form/TextInput.svelte';
-  import LoginServices from "@services/login.services";
-  import StatusCode from "status-code-enum";
 
   let username = "";
   let usernameError = "";
@@ -13,19 +11,6 @@
 
   const handleSubmitForNewProject = (e: SubmitEvent) => {
     e.preventDefault();
-
-    LoginServices
-      .login(username, password)
-      .then(({ data }) => {
-        console.log(data);
-      })
-      .catch(({ response }) => {
-        if (response.status === StatusCode.ClientErrorBadRequest) {
-          internalError = "Invalid username or password";
-          return;
-        }
-        internalError = "An unknown error occurred";
-      });
   };
 
 </script>

@@ -1,9 +1,9 @@
 import io from 'socket.io-client';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const ENDPOINT = import.meta.env.VITE_API_URL;
+const ENDPOINT = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-const webSocketClient = io(ENDPOINT);
+const webSocketClient = io(ENDPOINT, {
+  transports: ["polling"],
+});
 
 export default webSocketClient;
