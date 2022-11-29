@@ -11,10 +11,10 @@
     "strict": true,
     "paths": {
       "@types/*": [
-        "./src/types"
+        "./src/types/*"
       ],
       "@components/*": [
-        "./src/components"
+        "./src/components/*"
       ],
       "@services/*": [
         "./src/services/*",

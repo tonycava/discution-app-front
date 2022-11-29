@@ -1,19 +1,13 @@
 <script lang="ts">
   import TextInput from '@components/form/TextInput.svelte';
   import Loading from '@components/Loading.svelte';
-  import LoginServices from "@services/login.services";
+  import UserServices from "@services/user.services";
   import type { User } from "@types/User";
   import { goto } from "$app/navigation";
   import Cookies from "js-cookie";
-  import z from "zod";
   import { axiosInterceptor } from "$lib/axios";
-  import { onMount } from "svelte";
-  import { user } from "$lib/stores/user.store";
-
-  const validationSchema = z.object({
-    username: z.string().min(1, { message: "Username is required" }),
-    password: z.string().min(1, { message: "Password is required" }),
-  });
+  import { authZodSchema } from "$lib/zod";
+  import LoginServices from "../../services/login.services";
 
   let username = "";
   let usernameError = "";
@@ -24,17 +18,15 @@
   let internalError = "";
   let isLoading = false;
 
-  onMount(() => {
-    if (!$user) goto("/");
-  });
+  // onMount(() => {
+  //   if (!$user) goto("/");
+  // });
 
   const handleSubmit = async () => {
     isLoading = true;
-    const results = validationSchema.safeParse({ username, password });
+    const results = authZodSchema.safeParse({ username, password });
 
     if (!results.success) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const error = results.error.format();
       passwordError = error.password?._errors.join(", ") ?? "";
       usernameError = error.username?._errors.join(", ") ?? "";
@@ -45,7 +37,7 @@
     try {
       const { data } = await LoginServices.login({ username, password });
       axiosInterceptor(data.access_token);
-      const { data: userResponse } = await LoginServices.getUser();
+      const { data: userResponse } = await UserServices.getUser();
 
       const userData: User = {
         userId: userResponse.id,
@@ -67,14 +59,7 @@
   <Loading/>
 {/if}
 
-<header class="absolute m-6 flex justify-center items-center gap-4">
-  <img alt="Koomei logo" class="flex justify-center w-12 mx-auto aspect-square"
-       src="/logo.png">
-  <span class="h-8 text-white text-2xl my-4 text-center w-full"
-        style="font-family: Calibre, Helvetica Neue, Segoe UI, Helvetica, Arial, Lucida Grande, sans-serif">To cat from chat</span>
-</header>
-
-<div class="absolute mb-32 isolate justify-center items-center flex flex-col w-screen h-screen">
+<div class="justify-center items-center flex flex-col w-screen h-screen">
    <span
      class="h-8 relative text-3xl my-4 text-center w-full flex justify-center items-end before:-bottom-3 text-white before:absolute before:content-[''] before:w-32 before:h-1 before:bg-white"
      style="font-family: Calibre, Helvetica Neue, Segoe UI, Helvetica, Arial, Lucida Grande, sans-serif">Login</span>

@@ -1,16 +1,15 @@
-import type { AxiosResponse } from "axios";
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
 
-const login = async ({
+const register = async ({
   username,
   password
 }: { username: string, password: string }): Promise<AxiosResponse<{ access_token: string }>> => {
-  return await axios.post("/auth/login", {
+  return await axios.post("/auth/register", {
     username,
     password
   });
 };
 
 export default {
-  login,
+  register,
 };

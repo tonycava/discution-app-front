@@ -5,22 +5,28 @@
   import { axiosInterceptor } from "$lib/axios";
   import { user } from "$lib/stores/user.store";
   import Cookies from "js-cookie";
-  import type { User } from "../types/User";
-
+  import type { User } from "@types/User";
+  import Navbar from "@components/Navbar.svelte";
 
   let canvas: HTMLCanvasElement;
 
   onMount(() => {
-    const UserData: User | null = JSON.parse(Cookies.get("user") ?? '{}');
+    const UserData: User | undefined = JSON.parse(Cookies.get("user") ?? '{}');
     user.set(UserData);
-    axiosInterceptor($user.userId);
+    axiosInterceptor($user?.userId);
 
+    console.log($user?.userId);
     createScene(window, canvas);
     window.addEventListener('resize', resize);
   });
 </script>
 
-<div class="relative min-h-screen">
+
+<main class="min-h-screen">
   <canvas bind:this={canvas} class="absolute"></canvas>
-  <slot/>
-</div>
+  <div class="relative z-10">
+    <Navbar />
+    <slot/>
+  </div>
+</main>
+
