@@ -14,13 +14,35 @@
   let text = '';
 
   let messages: Message[] = [{
-    message: 'Welcome to the chat!',
+    message: 'Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!',
     userId: "system",
   },
     {
+      message: 'Please enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your name',
+      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
+    },    {
       message: 'Please enter your name',
       userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    }];
+    },    {
+      message: 'Please enter your name',
+      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
+    },    {
+      message: 'Please enter your name',
+      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
+    },    {
+      message: 'Please enter your name',
+      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
+    },  {
+      message: 'Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!',
+      userId: "system",
+    },  {
+      message: 'Please enter your name',
+      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
+    },    {
+      message: 'Please enter your nameggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
+    },
+    ];
 
   function sendMessage() {
     const message = text.trim();
@@ -38,24 +60,24 @@
   });
 </script>
 
-
 <div class="justify-center items-center flex flex-col w-screen h-screen">
-
-  <div class="w-full flex justify-center flex-col items-center">
-    <div class="w-[28%] bg-red-500">
+  <div class="w-full flex justify-center h-96 w-[28%] border-[1.5px] border-white rounded-lg flex-col items-center">
+    <ul class="w-full overflow-y-scroll grid grid-cols-2 flex-col-reverse">
       {#each messages as message}
-        <p class="text-white">{message.message}</p>
+        {#if (message.userId === $user?.userId)}
+          <li style="overflow-wrap: break-word;" class="bg-red-500 text-white col-start-2 mt-2">{message.message}</li>
+        {:else}
+          <li style="overflow-wrap: break-word;" class="bg-blue-500 text-white col-start-1 w-[calc(50%-25px)] col-end-3 ml-2 mt-2">{message.message}</li>
+        {/if}
       {/each}
-    </div>
-
-    <div class="pt-16 w-[28%] flex justify-center items-center">
+    </ul>
+    <div class="w-full flex justify-center items-center mt-auto">
       <TextInput bind:value={text} error="Message can not be empty" placeholder="Message"/>
-      <div class="absolute w-full flex justify-center items-center">
-        <div class="w-[28%] mt-1 flex justify-end mr-5 items-center">
+      <div class="absolute w-[28%] flex justify-center items-center">
+        <div class="w-full -z-10 absolute mt-1 flex justify-end mr-5 items-center">
           <SendIcon/>
         </div>
       </div>
     </div>
   </div>
-
 </div>
