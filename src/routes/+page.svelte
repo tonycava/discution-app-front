@@ -1,83 +1,82 @@
-<script lang="ts">
+<script lang='ts'>
+  import type { Message } from '@models/User';
+  import { onMount } from 'svelte';
+  import TextInput from '@components/form/TextInput.svelte';
+  import SendIcon from '@components/SendIcon.svelte';
+  import ChatServices from '@services/chat.services';
+  import Loading from '@components/Loading.svelte';
+  import { applyAction, enhance } from '$app/forms';
   import socket from '$lib/socket/webSocketClient';
-  import type { Message } from "@types/Message";
-  import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
-  import Cookies from "js-cookie";
-  import { user } from "$lib/stores/user.store";
-  import TextInput from "@components/form/TextInput.svelte";
-  import z from "zod";
-  import SendIcon from "@components/SendIcon.svelte";
+  import { user } from '$lib/stores/user.stores';
+  import Cookies from 'js-cookie';
+  import { goto } from '$app/navigation';
 
-  const validationSchema = z.string().min(1, { message: "Message can not be empty" });
+  let value = '';
 
-  let text = '';
+  export let form: {
+    internalError?: string
+  };
 
-  let messages: Message[] = [{
-    message: 'Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!',
-    userId: "system",
-  },
-    {
-      message: 'Please enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your namePlease enter your name',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },    {
-      message: 'Please enter your name',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },    {
-      message: 'Please enter your name',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },    {
-      message: 'Please enter your name',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },    {
-      message: 'Please enter your name',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },  {
-      message: 'Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!Welcome to the cha!',
-      userId: "system",
-    },  {
-      message: 'Please enter your name',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },    {
-      message: 'Please enter your nameggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-      userId: "84d36e1a-2bae-451e-a5ef-2650093c1c3d",
-    },
-    ];
+  let messages: Message[] = [];
+  let isLoading = true;
 
-  function sendMessage() {
-    const message = text.trim();
-    if (!message) return;
-    text = '';
-    socket.emit('message', { message, userId: $user?.userId });
-  }
-
-  onMount(() => {
-    if (!Cookies.get('user')) return goto("/login");
+  onMount(async () => {
+    try {
+      const { data } = await ChatServices.getChats() as Message[];
+      messages = data;
+    } catch (error) {
+      Cookies.remove('user');
+      Cookies.remove('jwt_token');
+      await goto('/login');
+    }
+    isLoading = false;
   });
 
-  socket.on("newChat", (chat: Message) => {
+  const handleSubmit = () => {
+    isLoading = true;
+    return async ({ result }) => {
+      await applyAction(result);
+      isLoading = false;
+    };
+  };
+
+  socket.on('newChat', (chat: Message) => {
+    value = '';
     messages = [chat, ...messages];
+    isLoading = false;
   });
 </script>
 
-<div class="justify-center items-center flex flex-col w-screen h-screen">
-  <div class="w-full flex justify-center h-96 w-[28%] border-[1.5px] border-white rounded-lg flex-col items-center">
-    <ul class="w-full overflow-y-scroll grid grid-cols-2 flex-col-reverse">
-      {#each messages as message}
-        {#if (message.userId === $user?.userId)}
-          <li style="overflow-wrap: break-word;" class="bg-red-500 text-white col-start-2 mt-2">{message.message}</li>
-        {:else}
-          <li style="overflow-wrap: break-word;" class="bg-blue-500 text-white col-start-1 w-[calc(50%-25px)] col-end-3 ml-2 mt-2">{message.message}</li>
-        {/if}
-      {/each}
-    </ul>
-    <div class="w-full flex justify-center items-center mt-auto">
-      <TextInput bind:value={text} error="Message can not be empty" placeholder="Message"/>
-      <div class="absolute w-[28%] flex justify-center items-center">
-        <div class="w-full -z-10 absolute mt-1 flex justify-end mr-5 items-center">
-          <SendIcon/>
-        </div>
-      </div>
-    </div>
-  </div>
+{#if isLoading}
+	<Loading />
+{/if}
+
+<div class='justify-center items-center flex flex-col w-screen h-screen'>
+	<div class='w-full flex justify-center h-96 w-[28%] border-[1.5px] border-white rounded-lg flex-col items-center'>
+		<ul class='ti-anchor w-full overflow-y-auto flex flex-col-reverse' id='grid'>
+			{#each messages as message}
+				{#if (message.userId === $user.id)}
+					<li
+						class='break-words bg-red-500 ml-auto w-[calc(50%-.75rem)] text-white col-start-2 mt-2 mr-2'>{message.message}</li>
+				{:else}
+					<li
+						class='break-words bg-blue-500 text-white col-start-1 w-[calc(50%-.75rem)] col-end-3 ml-2 mt-2'>{message.message}</li>
+				{/if}
+			{/each}
+		</ul>
+		<form
+			class='w-full flex justify-center items-center mt-auto'
+			enctype='multipart/form-data'
+			method='post'
+			use:enhance={handleSubmit}
+		>
+
+			<TextInput bind:value error={form?.internalError ?? ""} name='message' placeholder='Message' />
+			<div class='absolute w-[28%] flex justify-center items-center'>
+				<button class='w-fit absolute mt-1 flex justify-end mr-5 items-center' type='submit'>
+					<SendIcon />
+				</button>
+			</div>
+		</form>
+	</div>
 </div>

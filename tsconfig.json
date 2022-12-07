@@ -10,7 +10,7 @@
     "sourceMap": true,
     "strict": true,
     "paths": {
-      "@types/*": [
+      "@models/*": [
         "./src/types/*"
       ],
       "@components/*": [

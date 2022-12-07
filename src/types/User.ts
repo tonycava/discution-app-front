@@ -1,6 +1,10 @@
 export type User = {
-  userId: string;
-  username: string;
-  createdAt: Date;
-  access_token: string;
+  id?: string;
+  username?: string;
+  createdAt?: Date;
+}
+
+export type Message = {
+  message: string
+  userId: string
 }
