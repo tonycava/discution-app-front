@@ -32,6 +32,7 @@ const login: Action = async ({ request, cookies }) => {
   
   cookies.set("jwt_token", data.access_token, {
     path: '/',
+    domain: "api.koomei.tonycava.dev",
     httpOnly: false,
     sameSite: "lax",
     secure: process.env.NODE_ENV === 'production',
