@@ -43,12 +43,14 @@
     <TextInput
       error={form?.usernameError ?? ""}
       name="username"
+      type="text"
       placeholder="Username"
     />
 
     <TextInput
       error={form?.passwordError ?? ""}
       name="password"
+      type="password"
       placeholder="Password"
     />
 

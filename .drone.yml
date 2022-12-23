@@ -13,11 +13,11 @@ steps:
 
   - name: build
     commands:
-      - docker build -t discutoi:front .
+      - docker build -t koomei:front .
 
   - name: stop-previous-version
     commands:
-      - docker rm -f discutoi-front || true
+      - docker rm -f koomei-front || true
 
   - name: deploy
     commands:

@@ -1,8 +1,9 @@
-import axios from "axios";
-import type { Message } from "@models//Message";
+import axios, { type AxiosResponse } from 'axios';
+import type { Message } from '@models/User';
+import type { Limit } from '@models/Limit';
 
-const getChats = async (): Promise<Message[]> => {
-  return await axios.get(`${import.meta.env.VITE_API_URL}/chat`, {
+const getChats = async ({ start, end }: Limit): Promise<AxiosResponse<Message[]>> => {
+  return await axios.get(`${import.meta.env.VITE_API_URL}/chat/?start=${start}&end=${end}`, {
     withCredentials: true
   });
 };

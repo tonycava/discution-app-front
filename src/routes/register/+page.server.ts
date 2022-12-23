@@ -1,9 +1,8 @@
 import type { Action, Actions } from "@sveltejs/kit";
-import { invalid, redirect } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import { authZodSchema } from "$lib/zod";
 import UserServices from "@services/user.services";
 import type { User } from "@models/User";
-import { user } from "$lib/stores/user.stores";
 import * as process from "process";
 import type { AuthResponse } from '@models/AuthResponse';
 import RegisterServices from "@services/register.services";
@@ -17,7 +16,7 @@ const register: Action = async ({ request, cookies }) => {
   
   if (!results.success) {
     const error = results.error.format();
-    return invalid(400, {
+    return fail(400, {
       passwordError: error.password?._errors.join(", ") ?? "",
       usernameError: error.username?._errors.join(", ") ?? ""
     });
@@ -27,12 +26,13 @@ const register: Action = async ({ request, cookies }) => {
     .catch(() => ({ message: "Invalid username or password" })) as { data: AuthResponse };
   
   if (!data) {
-    return invalid(303, { internalError: "Invalid username or password" });
+    return fail(303, { internalError: "Invalid username or password" });
   }
   
   cookies.set("jwt_token", data.access_token, {
     path: '/',
     httpOnly: false,
+    domain: "koomei.tonycava.dev",
     sameSite: "lax",
     secure: process.env.NODE_ENV === 'production',
     maxAge: 60 * 60 * 24 * 3,

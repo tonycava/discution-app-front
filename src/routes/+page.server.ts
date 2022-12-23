@@ -1,5 +1,5 @@
 import type { Actions } from '@sveltejs/kit';
-import { invalid, redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import socket from '$lib/socket/webSocketClient';
 import UserServices from '@services/user.services';
 import StatusCode from 'status-code-enum';
@@ -18,7 +18,7 @@ export const actions: Actions = {
 
     if (!result.success) {
       const error = result.error.format();
-      return invalid(400, { internalError: error?._errors.join(", ") ?? "" });
+      return fail(400, { internalError: error?._errors.join(", ") ?? "" });
     }
 
     if (status === StatusCode.ClientErrorUnauthorized) {
@@ -27,6 +27,6 @@ export const actions: Actions = {
       return redirect(300, '/login');
     }
 
-    socket.emit('newMessage', { message, userId: locals.user.id });
+    socket.emit('newMessage', { message, userId: locals.user.id, roomId: "0" });
   },
 };

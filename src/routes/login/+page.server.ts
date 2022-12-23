@@ -1,5 +1,5 @@
 import type { Action, Actions } from "@sveltejs/kit";
-import { invalid, redirect } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import LoginServices from "@services/login.services";
 import { authZodSchema } from "$lib/zod";
 import UserServices from "@services/user.services";
@@ -17,7 +17,7 @@ const login: Action = async ({ request, cookies }) => {
   
   if (!results.success) {
     const error = results.error.format();
-    return invalid(400, {
+    return fail(400, {
       passwordError: error.password?._errors.join(", ") ?? "",
       usernameError: error.username?._errors.join(", ") ?? ""
     });
@@ -27,7 +27,7 @@ const login: Action = async ({ request, cookies }) => {
     .catch(() => ({ message: "Invalid username or password" })) as { data: AuthResponse };
   
   if (!data) {
-    return invalid(303, { internalError: "Invalid username or password" });
+    return fail(303, { internalError: "Invalid username or password" });
   }
   
   cookies.set("jwt_token", data.access_token, {

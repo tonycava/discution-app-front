@@ -7,23 +7,36 @@
   import Loading from '@components/Loading.svelte';
   import { applyAction, enhance } from '$app/forms';
   import socket from '$lib/socket/webSocketClient';
-  import { user } from '$lib/stores/user.stores';
+  import { user } from '$lib/stores/user.stores.js';
   import Cookies from 'js-cookie';
   import { goto } from '$app/navigation';
+  import type { Limit } from '@models/Limit';
+  import { inview } from 'svelte-inview';
 
-  let value = '';
 
   export let form: {
     internalError?: string
   };
 
-  let messages: Message[] = [];
+  let limit: Limit = {
+    start: '1',
+    end: '100'
+  };
+
+  let messages: any[] = [];
   let isLoading = true;
+  let isInView = false;
 
   onMount(async () => {
     try {
-      const { data } = await ChatServices.getChats() as Message[];
+      const { data } = await ChatServices.getChats(limit) as Message[];
       messages = data;
+      messages[messages.length - 1] = {
+        ...messages[messages.length - 1],
+        last: true
+      };
+
+      console.log(messages);
     } catch (error) {
       Cookies.remove('user');
       Cookies.remove('jwt_token');
@@ -32,51 +45,61 @@
     isLoading = false;
   });
 
-  const handleSubmit = () => {
+  $: isInView ? console.log('on te voit') : console.log('on te voit plus');
+
+  const handleSubmit = (e) => {
     isLoading = true;
     return async ({ result }) => {
       await applyAction(result);
-      isLoading = false;
+      e.form[0].value = '';
     };
   };
 
   socket.on('newChat', (chat: Message) => {
-    value = '';
     messages = [chat, ...messages];
+
     isLoading = false;
   });
 </script>
 
 {#if isLoading}
-	<Loading />
+  <Loading/>
 {/if}
 
 <div class='justify-center items-center flex flex-col w-screen h-screen'>
-	<div class='w-full flex justify-center h-96 w-[28%] border-[1.5px] border-white rounded-lg flex-col items-center'>
-		<ul class='ti-anchor w-full overflow-y-auto flex flex-col-reverse' id='grid'>
-			{#each messages as message}
-				{#if (message.userId === $user.id)}
-					<li
-						class='break-words bg-red-500 ml-auto w-[calc(50%-.75rem)] text-white col-start-2 mt-2 mr-2'>{message.message}</li>
-				{:else}
-					<li
-						class='break-words bg-blue-500 text-white col-start-1 w-[calc(50%-.75rem)] col-end-3 ml-2 mt-2'>{message.message}</li>
-				{/if}
-			{/each}
-		</ul>
-		<form
-			class='w-full flex justify-center items-center mt-auto'
-			enctype='multipart/form-data'
-			method='post'
-			use:enhance={handleSubmit}
-		>
-
-			<TextInput bind:value error={form?.internalError ?? ""} name='message' placeholder='Message' />
-			<div class='absolute w-[28%] flex justify-center items-center'>
-				<button class='w-fit absolute mt-1 flex justify-end mr-5 items-center' type='submit'>
-					<SendIcon />
-				</button>
-			</div>
-		</form>
-	</div>
+  <div class='w-full flex justify-center h-96 w-[28%] border-[1.5px] border-white rounded-lg flex-col items-center'>
+    <ul class='ti-anchor w-full overflow-y-auto flex flex-col-reverse' id='grid'>
+      {#each messages as {message, userId, last}}
+        {#if (last)}
+          <li use:inview={{}}
+              on:enter={({ detail }) => { isInView = detail.inView; }}
+              on:leave={({ detail }) => { isInView = detail.inView; }}
+              class='break-words bg-red-500 text-white w-[calc(50%-.75rem)] mt-2 mr-2 ml-auto'>
+            {message} LAST
+          </li>
+        {:else if (userId === $user?.id)}
+          <li class='break-words bg-red-500 text-white w-[calc(50%-.75rem)] mt-2 mr-2 ml-auto'>
+            {message}
+          </li>
+        {:else}
+          <li class='break-words bg-blue-500 text-white w-[calc(50%-.75rem)] mt-2 ml-2 '>
+            {message}
+          </li>
+        {/if}
+      {/each}
+    </ul>
+    <form
+      class='w-full flex justify-center items-center mt-auto'
+      enctype='multipart/form-data'
+      method='post'
+      use:enhance={handleSubmit}
+    >
+      <TextInput error={form?.internalError ?? ""} name='message' placeholder='Message'/>
+      <div class='flex justify-center items-center'>
+        <button class='w-fit [&>svg]:mt-[75%] absolute flex justify-end mr-5 items-center mr-16' type='submit'>
+          <SendIcon/>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
