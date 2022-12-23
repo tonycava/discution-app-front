@@ -57,7 +57,6 @@
 
   socket.on('newChat', (chat: Message) => {
     messages = [chat, ...messages];
-
     isLoading = false;
   });
 </script>
