@@ -35,7 +35,6 @@
         ...messages[messages.length - 1],
         last: true
       };
-
       console.log(messages);
     } catch (error) {
       Cookies.remove('user');
