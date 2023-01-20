@@ -38,7 +38,6 @@
 
   onMount(() => {
     socket.emit('changeRoom', groupId);
-    isLoading = false;
   });
 
   const getMore = async () => {
@@ -47,10 +46,7 @@
       isInView = false;
       return;
     }
-    limit = {
-      start: limit.end,
-      end: limit.end + RATIO
-    };
+    limit = { start: limit.end, end: limit.end + RATIO };
     try {
       const { data } = await ChatServices.getChats(limit, groupId);
       if (data.length === 0 || data.length < RATIO - 1) haveMoreChat = false;
@@ -61,19 +57,6 @@
     }
     isInView = false;
   };
-
-  const handleSubmit = () => {
-    isLoading = true;
-    return async ({ result }) => {
-      await applyAction(result);
-      value = '';
-    };
-  };
-
-  socket.on('newChat', (chat: Message) => {
-    messages = [chat, ...messages];
-    isLoading = false;
-  });
 
   const getFirstChatsOfGroup = async () => {
     limit = { start: 0, end: RATIO };
@@ -92,18 +75,31 @@
     socket.emit('changeRoom', groupId);
     haveMoreChat = true;
 
+    isLoading = true;
     const response = getFirstChatsOfGroup()
-      .catch(() => {
-        return;
-      });
+      .catch(() => {return;});
 
     if (!response) disconnect();
+    isLoading = false;
   }
 
   const handleGroupClick = (e: CustomEvent<string>) => {
     data.groupIn = e.detail;
     isLoading = true;
   };
+
+  const handleSubmit = () => {
+    isLoading = true;
+    return async ({ result }) => {
+      await applyAction(result);
+      value = '';
+    };
+  };
+
+  socket.on('newChat', (chat: Message) => {
+    messages = [chat, ...messages];
+    isLoading = false;
+  });
 </script>
 
 <div class='justify-center items-center flex w-screen h-screen p-20 gap-4'>
@@ -116,9 +112,9 @@
     {/each}
   </div>
   <div
-    class='w-full flex justify-between h-96 lg:w-[40%] w-full border-[1.5px] border-white rounded-lg flex-col items-center'>
+    class='relative w-full flex justify-between h-96 lg:w-[40%] w-full border-[1.5px] border-white rounded-lg flex-col items-center'>
     {#if isLoading || isInView}
-      <Loading />
+      <Loading absolute />
     {/if}
     {#if groupId === null}
       <span class="text-white my-auto">{data?.message}</span>
