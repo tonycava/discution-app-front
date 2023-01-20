@@ -96,10 +96,7 @@
         return;
       });
 
-    if (!response) {
-      disconnect();
-    }
-    isLoading = false;
+    if (!response) disconnect();
   }
 
   const handleGroupClick = (e: CustomEvent<string>) => {
