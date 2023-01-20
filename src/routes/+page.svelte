@@ -41,7 +41,6 @@
   });
 
   const getMore = async () => {
-    isInView = true;
     if (!haveMoreChat) {
       isInView = false;
       return;
@@ -113,7 +112,7 @@
   </div>
   <div
     class='relative w-full flex justify-between h-96 lg:w-[40%] w-full border-[1.5px] border-white rounded-lg flex-col items-center'>
-    {#if isLoading || isInView}
+    {#if isLoading}
       <Loading absolute />
     {/if}
     {#if groupId === null}
