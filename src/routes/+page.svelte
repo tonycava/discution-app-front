@@ -31,7 +31,7 @@
   let value = '';
   let messages: Message[] = [];
 
-  let isLoading = true;
+  let isLoading = !!data.groupIn;
   let haveMoreChat = true;
   let isInView = false;
   let groupId = $page.url.searchParams.get('groupId');
@@ -92,12 +92,14 @@
     socket.emit('changeRoom', groupId);
     haveMoreChat = true;
 
+    isLoading = true;
     const response = getFirstChatsOfGroup()
       .catch(() => {
         return;
       });
 
     if (!response) disconnect();
+    isLoading = false;
   }
 
   const handleGroupClick = (e: CustomEvent<string>) => {
