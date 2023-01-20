@@ -31,7 +31,7 @@
   let value = '';
   let messages: Message[] = [];
 
-  let isLoading = true;
+  let isLoading = !!data.groupIn;
   let haveMoreChat = true;
   let isInView = false;
   let groupId = $page.url.searchParams.get('groupId');
