@@ -16,7 +16,7 @@ export enum COOKEYS {
 // @ts-ignore
 export const cookieOptions: CookieSerializeOptions = {
   path: '/',
-  domain: "koomei.tonycava.dev",
+  // domain: "koomei.tonycava.dev",
   httpOnly: false,
   sameSite: 'lax',
   secure: process.env.NODE_ENV === 'production',

@@ -13,6 +13,7 @@
   import type { FormResponse } from '@models/AuthResponse';
   import { onMount } from 'svelte';
   import socket from '$lib/socket/webSocketClient';
+  import Signout from '@components/Signout.svelte';
 
   const RATIO = 11;
 
@@ -143,3 +144,4 @@
     {/if}
   </div>
 </div>
+<Signout />
