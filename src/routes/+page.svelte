@@ -66,7 +66,6 @@
     return async ({ result }) => {
       await applyAction(result);
       value = '';
-      isLoading = false;
     };
   };
 
@@ -76,10 +75,7 @@
   });
 
   const getFirstChatsOfGroup = async () => {
-    limit = {
-      start: 0,
-      end: RATIO
-    };
+    limit = { start: 0, end: RATIO };
     const response = await ChatServices.getChats(limit, groupId)
       .catch(null);
 
@@ -93,7 +89,6 @@
   $: {
     groupId = $page.url.searchParams.get('groupId');
     socket.emit('changeRoom', groupId);
-
     haveMoreChat = true;
 
     const response = getFirstChatsOfGroup()
