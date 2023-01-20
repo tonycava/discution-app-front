@@ -3,7 +3,7 @@
   export let name: string;
   export let error: string;
   export let placeholder: string;
-  export let type = 'text';
+  export let type: 'text' | 'password' = 'text';
   export let value = '';
 
   function typeAction(node: Node) {
@@ -16,8 +16,9 @@
   error={error}>
   <input
     autocomplete
+    autofocus
     bind:value
-    class="mt-5 bg-black/[.8] border-white border-solid text-white border-2 box-border border-2 rounded-lg p-1 w-4/4 h-12 mt-2"
+    class="bg-black/80 text-white border-[1px] box-border rounded-lg p-1 w-4/4 h-12"
     name={name}
     placeholder={placeholder}
     use:typeAction

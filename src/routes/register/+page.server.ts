@@ -1,62 +1,43 @@
-import type { Action, Actions } from "@sveltejs/kit";
-import { fail, redirect } from "@sveltejs/kit";
-import { authZodSchema } from "$lib/zod";
-import UserServices from "@services/user.services";
-import type { User } from "@models/User";
-import * as process from "process";
-import type { AuthResponse } from '@models/AuthResponse';
-import RegisterServices from "@services/register.services";
+import type { Action, Actions } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
+import { authZodSchema } from '$lib/zod';
+import RegisterServices from '@services/register.services';
+import { COOKEYS, cookieOptions, INPUT } from '$lib/utils';
+import type { PageServerLoad } from './$types';
 
+export const load: PageServerLoad = ({ locals }) => {
+  if (locals.user) throw redirect(303, '/');
+};
 const register: Action = async ({ request, cookies }) => {
   const form = await request.formData();
-  const username = form.get("username") as string;
-  const password = form.get("password") as string;
+  const username = form.get(INPUT.USERNAME) as string;
+  const password = form.get(INPUT.PASSWORD) as string;
   
   const results = authZodSchema.safeParse({ username, password });
-  
+
   if (!results.success) {
     const error = results.error.format();
+    const passwordError = error.password?._errors.join(', ') ?? '';
+    const usernameError = error.username?._errors.join(', ') ?? '';
     return fail(400, {
-      passwordError: error.password?._errors.join(", ") ?? "",
-      usernameError: error.username?._errors.join(", ") ?? ""
+      internalError: passwordError || usernameError || 'Internal server Error',
     });
   }
   
-  const { data } = await RegisterServices.register({ username, password })
-    .catch(() => ({ message: "Invalid username or password" })) as { data: AuthResponse };
+  const response = await RegisterServices.register({ username, password })
+    .catch(({ response }) => {
+      return { message: response.data.message };
+    });
   
-  if (!data) {
-    return fail(303, { internalError: "Invalid username or password" });
+  if ('message' in response) {
+    return fail(303, { internalError: response.message || 'Internal server error' });
   }
   
-  cookies.set("jwt_token", data.access_token, {
-    path: '/',
-    httpOnly: false,
-    domain: "koomei.tonycava.dev",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 3,
-  });
+  cookies.set(COOKEYS.JWT_TOKEN, response.data.access_token, cookieOptions);
   
-  const { data: userResponse } = await UserServices.getUser(data.access_token) as { data: User };
-  
-  const userData: User = {
-    id: userResponse.id,
-    username: userResponse.username,
-    createdAt: userResponse.createdAt,
-  };
-  
-  cookies.set("user", JSON.stringify(userData), {
-    path: '/',
-    httpOnly: false,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 3,
-  });
-  
-  throw redirect(303, "/");
+  throw redirect(303, '/');
 };
 
 export const actions: Actions = {
-  register,
+  register
 };

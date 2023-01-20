@@ -4,7 +4,13 @@ export type User = {
   createdAt?: Date;
 }
 
+export type Group = {
+  id: string;
+  name: string;
+}
+
 export type Message = {
+  id: string;
   message: string
   userId: string
 }

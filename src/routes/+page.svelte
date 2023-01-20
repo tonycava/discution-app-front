@@ -1,56 +1,72 @@
 <script lang='ts'>
-  import type { Message } from '@models/User';
-  import { onMount } from 'svelte';
+  import type { Group, Message } from '@models/User';
   import TextInput from '@components/form/TextInput.svelte';
   import SendIcon from '@components/SendIcon.svelte';
   import ChatServices from '@services/chat.services';
   import Loading from '@components/Loading.svelte';
   import { applyAction, enhance } from '$app/forms';
-  import socket from '$lib/socket/webSocketClient';
-  import { user } from '$lib/stores/user.stores.js';
-  import Cookies from 'js-cookie';
-  import { goto } from '$app/navigation';
   import type { Limit } from '@models/Limit';
-  import { inview } from 'svelte-inview';
+  import { disconnect, INPUT } from '$lib/utils.js';
+  import ChatCard from '@components/ChatCard.svelte';
+  import GroupCard from '@components/GroupCard.svelte';
+  import { page } from '$app/stores';
+  import type { FormResponse } from '@models/AuthResponse';
+  import { onMount } from 'svelte';
+  import socket from '$lib/socket/webSocketClient';
 
+  const RATIO = 11;
 
-  export let form: {
-    internalError?: string
+  export let form: FormResponse;
+  export let data: {
+    groups: Group[]
+    message?: string
+    groupIn?: string
   };
 
-  let limit: Limit = {
-    start: '1',
-    end: '100'
+  let limit: Limit<number> = {
+    start: 0,
+    end: RATIO
   };
 
-  let messages: any[] = [];
+  let value = '';
+  let messages: Message[] = [];
+
   let isLoading = true;
+  let haveMoreChat = true;
   let isInView = false;
+  let groupId = $page.url.searchParams.get('groupId');
 
-  onMount(async () => {
-    try {
-      const { data } = await ChatServices.getChats(limit) as Message[];
-      messages = data;
-      messages[messages.length - 1] = {
-        ...messages[messages.length - 1],
-        last: true
-      };
-      console.log(messages);
-    } catch (error) {
-      Cookies.remove('user');
-      Cookies.remove('jwt_token');
-      await goto('/login');
-    }
-    isLoading = false;
+  onMount(() => {
+    socket.emit('changeRoom', groupId);
   });
 
-  $: isInView ? console.log('on te voit') : console.log('on te voit plus');
+  const getMore = async () => {
+    isInView = true;
+    if (!haveMoreChat) {
+      isInView = false;
+      return;
+    }
+    limit = {
+      start: limit.end,
+      end: limit.end + RATIO
+    };
+    try {
+      const { data } = await ChatServices.getChats(limit, groupId);
+      if (data.length === 0 || data.length < RATIO - 1) haveMoreChat = false;
 
-  const handleSubmit = (e) => {
+      messages = [...messages, ...data];
+    } catch (e) {
+      await disconnect();
+    }
+    isInView = false;
+  };
+
+  const handleSubmit = () => {
     isLoading = true;
     return async ({ result }) => {
       await applyAction(result);
-      e.form[0].value = '';
+      value = '';
+      isLoading = false;
     };
   };
 
@@ -58,46 +74,84 @@
     messages = [chat, ...messages];
     isLoading = false;
   });
+
+  const getFirstChatsOfGroup = async () => {
+    limit = {
+      start: 0,
+      end: RATIO
+    };
+    const response = await ChatServices.getChats(limit, groupId)
+      .catch(null);
+
+    if (!response) {
+      await disconnect();
+    }
+
+    messages = response.data;
+  };
+
+  $: {
+    groupId = $page.url.searchParams.get('groupId');
+    socket.emit('changeRoom', groupId);
+
+    haveMoreChat = true;
+
+    const response = getFirstChatsOfGroup()
+      .catch(() => {
+        return;
+      });
+
+    if (!response) {
+      disconnect();
+    }
+    isLoading = false;
+  }
+
+  const handleGroupClick = (e: CustomEvent<string>) => {
+    data.groupIn = e.detail;
+    isLoading = true;
+  };
 </script>
 
-{#if isLoading}
-  <Loading/>
-{/if}
-
-<div class='justify-center items-center flex flex-col w-screen h-screen'>
-  <div class='w-full flex justify-center h-96 w-[28%] border-[1.5px] border-white rounded-lg flex-col items-center'>
-    <ul class='ti-anchor w-full overflow-y-auto flex flex-col-reverse' id='grid'>
-      {#each messages as {message, userId, last}}
-        {#if (last)}
-          <li use:inview={{}}
-              on:enter={({ detail }) => { isInView = detail.inView; }}
-              on:leave={({ detail }) => { isInView = detail.inView; }}
-              class='break-words bg-red-500 text-white w-[calc(50%-.75rem)] mt-2 mr-2 ml-auto'>
-            {message} LAST
-          </li>
-        {:else if (userId === $user?.id)}
-          <li class='break-words bg-red-500 text-white w-[calc(50%-.75rem)] mt-2 mr-2 ml-auto'>
-            {message}
-          </li>
-        {:else}
-          <li class='break-words bg-blue-500 text-white w-[calc(50%-.75rem)] mt-2 ml-2 '>
-            {message}
-          </li>
-        {/if}
-      {/each}
-    </ul>
-    <form
-      class='w-full flex justify-center items-center mt-auto'
-      enctype='multipart/form-data'
-      method='post'
-      use:enhance={handleSubmit}
-    >
-      <TextInput error={form?.internalError ?? ""} name='message' placeholder='Message'/>
-      <div class='flex justify-center items-center'>
-        <button class='w-fit [&>svg]:mt-[75%] absolute flex justify-end mr-5 items-center mr-16' type='submit'>
-          <SendIcon/>
-        </button>
-      </div>
-    </form>
+<div class='justify-center items-center flex w-screen h-screen p-20 gap-4'>
+  <div class='w-full flex h-96 overflow-y-auto w-[22%] border-[1.5px] border-white rounded-lg flex-col items-center'>
+    {#each data.groups as group}
+      <GroupCard
+        group={group}
+        on:click={handleGroupClick}
+      />
+    {/each}
+  </div>
+  <div
+    class='w-full flex justify-between h-96 lg:w-[40%] w-full border-[1.5px] border-white rounded-lg flex-col items-center'>
+    {#if isLoading || isInView}
+      <Loading />
+    {/if}
+    {#if groupId === null}
+      <span class="text-white my-auto">{data?.message}</span>
+    {:else}
+      <ul class='ti-anchor w-full overflow-y-auto flex flex-col-reverse'>
+        {#each messages as message, i}
+          <ChatCard isLast={i === messages.length - 1} message={message} getMore={getMore} />
+        {/each}
+      </ul>
+    {/if}
+    {#if (data.groupIn)}
+      <form
+        class='w-full flex justify-center items-center'
+        enctype='multipart/form-data'
+        method='post'
+        use:enhance={handleSubmit}
+      >
+        <TextInput bind:value error={form?.internalError ?? ""} name={INPUT.MESSAGE}
+                   placeholder={groupId ? `Send message in ${data.groupIn}...` : "You can not send message here"} />
+        <div class='flex justify-center items-center'>
+          <button class='w-fit absolute flex justify-end mr-5 items-center mr-16' disabled={groupId === null}
+                  type='submit'>
+            <SendIcon />
+          </button>
+        </div>
+      </form>
+    {/if}
   </div>
 </div>

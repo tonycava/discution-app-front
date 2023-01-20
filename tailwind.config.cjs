@@ -27,6 +27,13 @@ module.exports = {
           '100%': {transform: 'translate(24px, 0)'},
         },
       },
+      fontFamily: {
+        'poppins-bold': ['poppins-bold'],
+        'poppins-medium': ['poppins-medium'],
+        'poppins-regular': ['poppins-regular'],
+        'poppins-light': ['poppins-light'],
+        'popins-thin': ['poppins-thin'],
+      },
       animation: {
         scaleZeroToOne: 'scaleZeroToOne 0.6s infinite',
         scaleOneToZero: 'scaleOneToZero 0.6s infinite',

@@ -2,8 +2,6 @@ export type AuthResponse = {
   access_token: string;
 }
 
-export type AuthError = {
-  passwordError?: string,
-  usernameError?: string
+export type FormResponse = {
   internalError?: string
 };
