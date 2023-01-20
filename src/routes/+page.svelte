@@ -38,6 +38,7 @@
 
   onMount(() => {
     socket.emit('changeRoom', groupId);
+    isLoading = false;
   });
 
   const getMore = async () => {
@@ -96,10 +97,7 @@
         return;
       });
 
-    if (!response) {
-      disconnect();
-    }
-    isLoading = false;
+    if (!response) disconnect();
   }
 
   const handleGroupClick = (e: CustomEvent<string>) => {
